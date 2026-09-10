@@ -18,7 +18,7 @@ let dbInstance: DatabaseSync | null = null;
 export function getDb(): DatabaseSync {
   if (!dbInstance) {
     const dbPath = path.join(process.cwd(), 'products.db');
-    dbInstance = new DatabaseSync(dbPath);
+    dbInstance = new DatabaseSync(dbPath, { readOnly: true });
   }
   return dbInstance;
 }

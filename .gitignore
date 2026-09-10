@@ -4,3 +4,5 @@ data.sql
 products.db-journal
 .system_generated
 .env*.local
+__pycache__
+*.pyc
