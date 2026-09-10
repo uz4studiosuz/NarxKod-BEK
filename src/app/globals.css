@@ -168,6 +168,146 @@ input, button {
   flex: 1;
 }
 
+/* Search Mode Switch */
+.search-mode-switch {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 6px;
+}
+
+.mode-switch-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-switch-btn:hover {
+  color: var(--text-primary);
+}
+
+.mode-switch-btn.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
+  font-weight: 600;
+}
+
+/* Calculator Keypad Widget */
+.keypad-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.keypad-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  min-height: 54px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.keypad-display-prefix {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.keypad-display-text {
+  flex: 1;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.keypad-display-text.placeholder {
+  font-size: 0.94rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: normal;
+  font-family: inherit;
+}
+
+.keypad-clear-pill {
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-xs);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.keypad-btn {
+  height: 52px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.1s ease;
+}
+
+.keypad-btn:active {
+  background: var(--bg-subtle);
+  transform: scale(0.97);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.keypad-btn.keypad-fn-clear {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.keypad-btn.keypad-fn-clear:active {
+  background: var(--accent-border);
+}
+
+.keypad-btn.keypad-fn-delete {
+  color: var(--text-secondary);
+}
+
+.keypad-btn.keypad-fn-delete:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* Search Bar - Qayrilgan yumaloq input */
 .search-wrapper {
   position: relative;
@@ -354,29 +494,60 @@ input, button {
   color: var(--text-secondary);
 }
 
-.product-secondary-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 12px 14px;
+/* Product Codes Row - Narxning tagida */
+.product-codes-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.code-card {
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.meta-item {
+.code-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.code-card-val {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.product-extra-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.extra-meta-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
 }
 
-.meta-label {
+.extra-meta-label {
   color: var(--text-secondary);
-  min-width: 75px;
 }
 
-.meta-value {
+.extra-meta-val {
   color: var(--text-primary);
   font-weight: 500;
 }

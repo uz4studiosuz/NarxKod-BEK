@@ -34,29 +34,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
 
-      {/* 3. IKKILAMCHI MA'LUMOTLAR */}
-      <div className="product-secondary-meta">
-        <div className="meta-item">
-          <span className="meta-label">Ichki kod:</span>
-          <span className="meta-value font-mono">{product.code || product.id}</span>
+      {/* 3. KODLARI: NARXNING TAGIDA (Ichki kod va Shtrix-kodi) */}
+      <div className="product-codes-row">
+        <div className="code-card">
+          <span className="code-card-label">Ichki kod</span>
+          <span className="code-card-val font-mono">{product.code || product.id}</span>
         </div>
 
-        {product.articul ? (
-          <div className="meta-item">
-            <span className="meta-label">Artikul:</span>
-            <span className="meta-value">{product.articul}</span>
-          </div>
-        ) : null}
-
-        {barcodesList.length > 0 && (
-          <div className="meta-item barcode-item">
-            <span className="meta-label">Shtrix-kod:</span>
-            <span className="meta-value font-mono">
-              {barcodesList.join(', ')}
-            </span>
-          </div>
-        )}
+        <div className="code-card">
+          <span className="code-card-label">Shtrix-kod</span>
+          <span className="code-card-val font-mono">
+            {barcodesList.length > 0 ? barcodesList[0] : '-'}
+          </span>
+        </div>
       </div>
+
+      {/* Qoʻshimcha maʼlumotlar (agar artikul yoki boshqa shtrix-kodlar boʻlsa) */}
+      {(product.articul || barcodesList.length > 1) && (
+        <div className="product-extra-meta">
+          {product.articul && (
+            <div className="extra-meta-item">
+              <span className="extra-meta-label">Artikul:</span>
+              <span className="extra-meta-val">{product.articul}</span>
+            </div>
+          )}
+          {barcodesList.length > 1 && (
+            <div className="extra-meta-item">
+              <span className="extra-meta-label">Qoʻshimcha shtrix-kodlar:</span>
+              <span className="extra-meta-val font-mono">{barcodesList.slice(1).join(', ')}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {product.deleted === 1 && (
         <div className="product-archived-notice">

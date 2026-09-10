@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { Product } from '@/lib/db';
 import { ProductCard, formatPrice } from '@/components/ProductCard';
 import { SearchBar } from '@/components/SearchBar';
+import { NumericKeypad } from '@/components/NumericKeypad';
 import { 
   Scan, 
   Search, 
@@ -15,7 +16,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Barcode as BarcodeIcon,
-  ShoppingBag
+  ShoppingBag,
+  Hash
 } from 'lucide-react';
 import { playErrorBeep } from '@/lib/audio';
 
@@ -27,6 +29,7 @@ const BarcodeScanner = dynamic(
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'scan' | 'search' | 'history'>('scan');
+  const [searchMode, setSearchMode] = useState<'code' | 'text'>('code');
   const [cameraActive, setCameraActive] = useState<boolean>(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [notFoundBarcode, setNotFoundBarcode] = useState<string | null>(null);
@@ -201,13 +204,49 @@ export default function HomePage() {
       {/* SEARCH TAB CONTENT */}
       {activeTab === 'search' && (
         <div className="content-section">
-          <SearchBar
-            value={searchQuery}
-            onChange={handleSearch}
-            onClear={() => handleSearch('')}
-            isLoading={isSearching}
-            placeholder="Tovar nomi, kodi (masalan: 10006)..."
-          />
+          {/* Mode Switch: Raqam (Kalkulyator) vs Soʻz (Klaviatura) */}
+          <div className="search-mode-switch">
+            <button
+              type="button"
+              className={`mode-switch-btn ${searchMode === 'code' ? 'active' : ''}`}
+              onClick={() => {
+                setSearchMode('code');
+                setSearchQuery('');
+                setSearchResults([]);
+              }}
+            >
+              <Hash size={16} />
+              <span>Raqam bilan (Kod)</span>
+            </button>
+
+            <button
+              type="button"
+              className={`mode-switch-btn ${searchMode === 'text' ? 'active' : ''}`}
+              onClick={() => {
+                setSearchMode('text');
+                setSearchQuery('');
+                setSearchResults([]);
+              }}
+            >
+              <Search size={16} />
+              <span>Soʻz bilan (Nom)</span>
+            </button>
+          </div>
+
+          {searchMode === 'code' ? (
+            <NumericKeypad
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          ) : (
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearch}
+              onClear={() => handleSearch('')}
+              isLoading={isSearching}
+              placeholder="Tovar nomini yozing (masalan: orbit, non)..."
+            />
+          )}
 
           {searchQuery.trim() && (
             <div className="results-count-label">
@@ -253,16 +292,28 @@ export default function HomePage() {
               <Package className="empty-icon" size={36} />
               <div className="empty-title">Tovar topilmadi</div>
               <div className="empty-text">
-                "{searchQuery}" boʻyicha tovar topilmadi. Qidiruv soʻzini yoki kodini tekshiring.
+                "{searchQuery}" boʻyicha tovar topilmadi. Qidiruv kodini yoki nomini qayta tekshiring.
               </div>
             </div>
           ) : !searchQuery.trim() ? (
             <div className="empty-state">
-              <Search className="empty-icon" size={36} />
-              <div className="empty-title">Tovar qidirish</div>
-              <div className="empty-text">
-                Tovar nomi yoki ichki kodini yozing (masalan: <b>non</b>, <b>orbit</b>, <b>10006</b>).
-              </div>
+              {searchMode === 'code' ? (
+                <>
+                  <Hash className="empty-icon" size={36} />
+                  <div className="empty-title">Raqamli kod orqali qidirish</div>
+                  <div className="empty-text">
+                    Kalkulyator tugmachalarini bosib tovar ichki kodini (masalan: <b>10006</b>) tering.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Search className="empty-icon" size={36} />
+                  <div className="empty-title">Tovar nomini qidirish</div>
+                  <div className="empty-text">
+                    Klaviaturadan tovar nomini yozing (masalan: <b>non</b>, <b>orbit</b>, <b>cola</b>).
+                  </div>
+                </>
+              )}
             </div>
           ) : null}
         </div>
