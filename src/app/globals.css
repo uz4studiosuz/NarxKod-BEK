@@ -1,38 +1,39 @@
 :root {
-  /* 60-30-10 Rule Design Tokens */
-  /* 60% Dominant Canvas */
-  --bg-app: #f8fafc;
+  /* 60-30-10 Rule Design System */
+  
+  /* 60% Canvas & Backgrounds */
+  --bg-app: #f9fafb;
   --bg-surface: #ffffff;
-  --bg-subtle: #f1f5f9;
+  --bg-subtle: #f3f4f6;
 
   /* 30% Structural & Typography */
-  --border-light: #e2e8f0;
-  --border-input: #cbd5e1;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  /* Kulrang hiyol koʻrinar-koʻrinmas nafis nozik stroke */
+  --border-subtle: rgba(0, 0, 0, 0.07);
+  --border-input: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
 
-  /* 10% Purposeful Accents */
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-light: #eff6ff;
-  --accent-border: #bfdbfe;
+  /* 10% Primary Brand Accent: Toʻq Qizil (Deep Crimson / Dark Red) */
+  --accent: #991b1b;
+  --accent-hover: #7f1d1d;
+  --accent-light: #fef2f2;
+  --accent-border: #fecaca;
 
-  --success: #059669;
-  --success-light: #ecfdf5;
-  --success-border: #a7f3d0;
-
+  /* Status Colors */
   --danger: #dc2626;
   --danger-light: #fef2f2;
   --danger-border: #fecaca;
-
   --warning: #d97706;
   --warning-light: #fffbeb;
   --warning-border: #fde68a;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* Qayrilgan (Smooth Curved) Border Radius */
+  --radius-xs: 8px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
 }
 
 * {
@@ -57,17 +58,17 @@ input, button {
 
 /* App Container */
 .app-container {
-  max-width: 540px;
+  max-width: 520px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-app);
-  border-left: 1px solid var(--border-light);
-  border-right: 1px solid var(--border-light);
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
 }
 
-@media (max-width: 540px) {
+@media (max-width: 520px) {
   .app-container {
     border-left: none;
     border-right: none;
@@ -80,8 +81,8 @@ input, button {
   top: 0;
   z-index: 40;
   background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-light);
-  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 13px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,12 +91,12 @@ input, button {
 .brand-badge {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
 }
 
 .brand-logo-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
   background-color: var(--accent);
   display: flex;
@@ -106,24 +107,26 @@ input, button {
 }
 
 .brand-title {
-  font-size: 1.1rem;
+  font-size: 1.12rem;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .brand-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: var(--text-secondary);
   font-weight: 500;
+  margin-top: 1px;
 }
 
-/* Tab Bar */
+/* Tab Bar - Qayrilgan Zamonaviy Segmented Style */
 .tab-bar {
   display: flex;
   background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-light);
-  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 8px 14px;
   gap: 8px;
 }
 
@@ -133,8 +136,8 @@ input, button {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-secondary);
@@ -165,22 +168,22 @@ input, button {
   flex: 1;
 }
 
-/* Search Bar */
+/* Search Bar - Qayrilgan yumaloq input */
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   background: var(--bg-surface);
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-md);
-  padding: 0 12px;
-  transition: border-color 0.15s ease;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .search-wrapper:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 2px rgba(153, 27, 27, 0.12);
 }
 
 .search-icon {
@@ -188,7 +191,7 @@ input, button {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 8px;
+  margin-right: 10px;
 }
 
 .search-input-box {
@@ -198,7 +201,7 @@ input, button {
   outline: none;
   font-size: 0.94rem;
   color: var(--text-primary);
-  padding: 12px 0;
+  padding: 13px 0;
 }
 
 .search-input-box::placeholder {
@@ -213,7 +216,7 @@ input, button {
   cursor: pointer;
   display: flex;
   align-items: center;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .search-clear-btn:hover {
@@ -225,10 +228,10 @@ input, button {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-secondary);
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
-/* Search List & Items */
+/* Search List & Item Cards - Qayrilgan Widget */
 .search-list {
   display: flex;
   flex-direction: column;
@@ -237,193 +240,140 @@ input, button {
 
 .search-item-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 15px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.08s ease;
 }
 
 .search-item-card:hover {
-  border-color: var(--accent);
+  border-color: rgba(153, 27, 27, 0.25);
   background: #ffffff;
+}
+
+.search-item-card:active {
+  transform: scale(0.995);
 }
 
 /* 1. NOMI */
 .item-title {
-  font-size: 0.98rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.35;
 }
 
-/* 2. NARXI VA QOLDIQ */
+/* 2. SOTUV NARXI */
 .item-main-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
 }
 
 .item-price {
-  font-size: 1.18rem;
+  font-size: 1.22rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--accent);
 }
 
 .item-price-unit {
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
-.item-stock-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.item-stock-tag.in {
-  background-color: var(--success-light);
-  color: var(--success);
-  border: 1px solid var(--success-border);
-}
-
-.item-stock-tag.out {
-  background-color: var(--danger-light);
-  color: var(--danger);
-  border: 1px solid var(--danger-border);
-}
-
-/* 3. IKKILAMCHI MA'LUMOTLAR */
+/* 3. IKKILAMCHI TEGLAR */
 .item-meta-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  padding-top: 4px;
-  border-top: 1px solid #f1f5f9;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .item-meta-pill {
   font-size: 0.74rem;
   color: var(--text-secondary);
   background: var(--bg-subtle);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: inherit;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
 }
 
-/* Product Card (Clean Minimalist) */
+/* Product Card - Clean Rounded Widget */
 .product-card-clean {
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 18px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
 .product-title-main {
-  font-size: 1.15rem;
+  font-size: 1.18rem;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.35;
 }
 
-.product-primary-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--bg-subtle);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-}
-
-.product-price-box, .product-stock-box {
+/* Sotuv Narxi Highlight Bloki */
+.product-price-highlight-card {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 14px 16px;
+  background: var(--accent-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-border);
 }
 
 .price-tag-sub {
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  letter-spacing: 0.03em;
+  color: var(--accent);
+  letter-spacing: 0.04em;
 }
 
 .price-amount-clean {
-  font-size: 1.4rem;
+  font-size: 1.55rem;
   font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1.1;
+  color: var(--accent);
+  line-height: 1.15;
 }
 
 .price-unit {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
-}
-
-.stock-badge-clean {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  font-weight: 600;
-  width: fit-content;
-}
-
-.stock-badge-clean.in-stock {
-  background: var(--success-light);
-  color: var(--success);
-  border: 1px solid var(--success-border);
-}
-
-.stock-badge-clean.out-of-stock {
-  background: var(--danger-light);
-  color: var(--danger);
-  border: 1px solid var(--danger-border);
-}
-
-.stock-badge-clean.low-stock {
-  background: var(--warning-light);
-  color: var(--warning);
-  border: 1px solid var(--warning-border);
 }
 
 .product-secondary-meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
+  gap: 7px;
+  padding: 12px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
+  gap: 8px;
+  font-size: 0.84rem;
 }
 
 .meta-label {
   color: var(--text-secondary);
-  min-width: 70px;
+  min-width: 75px;
 }
 
 .meta-value {
@@ -436,7 +386,7 @@ input, button {
 }
 
 .product-archived-notice {
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--warning-light);
   border: 1px solid var(--warning-border);
   color: var(--warning);
@@ -446,11 +396,11 @@ input, button {
   font-weight: 500;
 }
 
-/* Scanner Card & Viewport */
+/* Scanner Card - Qayrilgan Widget */
 .scanner-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -478,7 +428,7 @@ input, button {
   object-fit: cover !important;
 }
 
-/* Reticle / Viewfinder (Clean & Minimalist, No Neon Bloom) */
+/* Reticle / Viewfinder */
 .scanner-reticle-overlay {
   position: absolute;
   inset: 0;
@@ -507,28 +457,28 @@ input, button {
   top: 0;
   left: 0;
   border-width: 3px 0 0 3px;
-  border-top-left-radius: 4px;
+  border-top-left-radius: 6px;
 }
 
 .reticle-corner.top-right {
   top: 0;
   right: 0;
   border-width: 3px 3px 0 0;
-  border-top-right-radius: 4px;
+  border-top-right-radius: 6px;
 }
 
 .reticle-corner.bottom-left {
   bottom: 0;
   left: 0;
   border-width: 0 0 3px 3px;
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 6px;
 }
 
 .reticle-corner.bottom-right {
   bottom: 0;
   right: 0;
   border-width: 0 3px 3px 0;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
 }
 
 .scanner-reticle-line {
@@ -536,16 +486,16 @@ input, button {
   top: 50%;
   left: 10px;
   right: 10px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.4);
+  height: 1.5px;
+  background: rgba(254, 202, 202, 0.75);
 }
 
 .scanner-hint-tag {
   margin-top: 14px;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(17, 24, 39, 0.8);
   color: #ffffff;
   font-size: 0.75rem;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
 }
 
@@ -568,7 +518,7 @@ input, button {
 }
 
 .scanner-error-text {
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   color: var(--danger);
   line-height: 1.4;
   max-width: 320px;
@@ -582,19 +532,19 @@ input, button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: var(--danger);
+  padding: 9px 16px;
+  background: var(--accent);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .scanner-retry-btn:hover {
-  background: #b91c1c;
+  background: var(--accent-hover);
 }
 
 .scanner-controls {
@@ -603,18 +553,18 @@ input, button {
   justify-content: space-between;
   padding: 10px 14px;
   background: var(--bg-surface);
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .control-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  border: 1px solid var(--border-light);
+  padding: 8px 14px;
+  border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
@@ -641,21 +591,21 @@ input, button {
 
 .scanned-label {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--accent);
   letter-spacing: 0.04em;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
 .not-found-alert {
   background: var(--danger-light);
   border: 1px solid var(--danger-border);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 }
 
 .alert-icon {
@@ -665,69 +615,70 @@ input, button {
 }
 
 .alert-title {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--danger);
 }
 
 .alert-desc {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .alert-desc code {
-  background: rgba(220, 38, 38, 0.1);
-  padding: 1px 5px;
+  background: rgba(153, 27, 27, 0.1);
+  padding: 2px 6px;
   border-radius: 4px;
   font-weight: 600;
+  color: var(--accent);
 }
 
-/* History Bar */
+/* History Header */
 .history-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
 .history-title {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .clear-btn {
   background: none;
-  border: 1px solid var(--border-light);
-  padding: 4px 8px;
+  border: 1px solid var(--border-subtle);
+  padding: 5px 10px;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .clear-btn:hover {
-  background: var(--bg-subtle);
-  color: var(--danger);
-  border-color: var(--danger-border);
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
 }
 
-/* Empty State */
+/* Empty State - Qayrilgan Dotted Box */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 36px 20px;
+  padding: 40px 20px;
   background: var(--bg-surface);
   border: 1px dashed var(--border-input);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   gap: 8px;
 }
 
@@ -736,16 +687,16 @@ input, button {
 }
 
 .empty-title {
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .empty-text {
-  font-size: 0.82rem;
+  font-size: 0.83rem;
   color: var(--text-secondary);
-  max-width: 300px;
-  line-height: 1.4;
+  max-width: 310px;
+  line-height: 1.45;
 }
 
 /* Spinner */

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { Product } from '@/lib/db';
-import { ProductCard, formatPrice, formatQuantity } from '@/components/ProductCard';
+import { ProductCard, formatPrice } from '@/components/ProductCard';
 import { SearchBar } from '@/components/SearchBar';
 import { 
   Scan, 
@@ -217,42 +217,36 @@ export default function HomePage() {
 
           {searchResults.length > 0 ? (
             <div className="search-list">
-              {searchResults.map((item) => {
-                const isOut = (item.remainder || 0) <= 0;
-                return (
-                  <div
-                    key={item.id}
-                    className="search-item-card"
-                    onClick={() => saveToHistory(item)}
-                  >
-                    {/* 1. ASOSIY: NOMI */}
-                    <div className="item-title">{item.name}</div>
+              {searchResults.map((item) => (
+                <div
+                  key={item.id}
+                  className="search-item-card"
+                  onClick={() => saveToHistory(item)}
+                >
+                  {/* 1. ASOSIY: NOMI */}
+                  <div className="item-title">{item.name}</div>
 
-                    {/* 2. ASOSIY: NARXI VA QOLDIQ */}
-                    <div className="item-main-row">
-                      <div className="item-price">
-                        {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
-                      </div>
-                      <div className={`item-stock-tag ${isOut ? 'out' : 'in'}`}>
-                        {isOut ? 'Qoldiq: 0' : `Qoldiq: ${formatQuantity(item.remainder)} dona`}
-                      </div>
-                    </div>
-
-                    {/* 3. IKKILAMCHI: KOD VA SHTRIX-KOD */}
-                    <div className="item-meta-row">
-                      <span className="item-meta-pill">Kod: {item.code || item.id}</span>
-                      {item.barcodes && (
-                        <span className="item-meta-pill">
-                          Shtrix: {item.barcodes.split(',')[0]}
-                        </span>
-                      )}
-                      {item.articul && (
-                        <span className="item-meta-pill">Art: {item.articul}</span>
-                      )}
+                  {/* 2. ASOSIY: SOTUV NARXI */}
+                  <div className="item-main-row">
+                    <div className="item-price">
+                      {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* 3. IKKILAMCHI: KOD VA SHTRIX-KOD */}
+                  <div className="item-meta-row">
+                    <span className="item-meta-pill">Kod: {item.code || item.id}</span>
+                    {item.barcodes && (
+                      <span className="item-meta-pill font-mono">
+                        Shtrix: {item.barcodes.split(',')[0]}
+                      </span>
+                    )}
+                    {item.articul && (
+                      <span className="item-meta-pill">Art: {item.articul}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : searchQuery.trim() && !isSearching ? (
             <div className="empty-state">
@@ -331,37 +325,31 @@ export default function HomePage() {
 
           {history.length > 0 ? (
             <div className="search-list">
-              {history.map((item) => {
-                const isOut = (item.remainder || 0) <= 0;
-                return (
-                  <div
-                    key={item.id}
-                    className="search-item-card"
-                    onClick={() => {
-                      setSelectedProduct(item);
-                      setActiveTab('scan');
-                    }}
-                  >
-                    <div className="item-title">{item.name}</div>
-                    <div className="item-main-row">
-                      <div className="item-price">
-                        {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
-                      </div>
-                      <div className={`item-stock-tag ${isOut ? 'out' : 'in'}`}>
-                        {isOut ? 'Qoldiq: 0' : `Qoldiq: ${formatQuantity(item.remainder)} dona`}
-                      </div>
-                    </div>
-                    <div className="item-meta-row">
-                      <span className="item-meta-pill">Kod: {item.code || item.id}</span>
-                      {item.barcodes && (
-                        <span className="item-meta-pill">
-                          Shtrix: {item.barcodes.split(',')[0]}
-                        </span>
-                      )}
+              {history.map((item) => (
+                <div
+                  key={item.id}
+                  className="search-item-card"
+                  onClick={() => {
+                    setSelectedProduct(item);
+                    setActiveTab('scan');
+                  }}
+                >
+                  <div className="item-title">{item.name}</div>
+                  <div className="item-main-row">
+                    <div className="item-price">
+                      {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
                     </div>
                   </div>
-                );
-              })}
+                  <div className="item-meta-row">
+                    <span className="item-meta-pill">Kod: {item.code || item.id}</span>
+                    {item.barcodes && (
+                      <span className="item-meta-pill font-mono">
+                        Shtrix: {item.barcodes.split(',')[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="empty-state">
