@@ -6,3 +6,6 @@ products.db-journal
 .env*.local
 __pycache__
 *.pyc
+*.sql
+script_db_maker/data/*
+!script_db_maker/data/.gitkeep

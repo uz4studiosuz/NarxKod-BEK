@@ -9,7 +9,7 @@
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p 3000",
-    "extract": "python extract_data.py"
+    "extract": "python script_db_maker/make_db.py"
   },
   "dependencies": {
     "html5-qrcode": "^2.3.8",
