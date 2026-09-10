@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Camera, CameraOff, Flashlight, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Camera, CameraOff, Flashlight, RefreshCw, AlertCircle } from 'lucide-react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { playSuccessBeep, playErrorBeep } from '@/lib/audio';
+import { playSuccessBeep } from '@/lib/audio';
 
 interface BarcodeScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -18,18 +18,49 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 }) => {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isRunningRef = useRef<boolean>(false);
+  const isTransitioningRef = useRef<boolean>(false);
+  const onScanSuccessRef = useRef(onScanSuccess);
+
+  // Keep latest onScanSuccess reference without triggering re-renders
+  useEffect(() => {
+    onScanSuccessRef.current = onScanSuccess;
+  }, [onScanSuccess]);
+
   const [hasTorch, setHasTorch] = useState<boolean>(false);
   const [torchOn, setTorchOn] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [cameraCount, setCameraCount] = useState<number>(0);
+  const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const lastScannedCodeRef = useRef<string>('');
   const lastScannedTimeRef = useRef<number>(0);
 
+  const stopScanner = useCallback(async () => {
+    if (!scannerRef.current || !isRunningRef.current) return;
+    try {
+      isTransitioningRef.current = true;
+      await scannerRef.current.stop();
+      isRunningRef.current = false;
+      setTorchOn(false);
+    } catch (err) {
+      console.warn('Scanner stop warning:', err);
+    } finally {
+      isTransitioningRef.current = false;
+    }
+  }, []);
+
   const startScanner = useCallback(async () => {
+    if (isRunningRef.current || isTransitioningRef.current) return;
+    
     setCameraError(null);
+    setIsRetrying(true);
+    isTransitioningRef.current = true;
+
     try {
       const container = document.getElementById('scanner-reader');
-      if (!container) return;
+      if (!container) {
+        isTransitioningRef.current = false;
+        setIsRetrying(false);
+        return;
+      }
 
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode('scanner-reader', {
@@ -46,20 +77,12 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         });
       }
 
-      // Check cameras
-      try {
-        const devices = await Html5Qrcode.getCameras();
-        setCameraCount(devices.length);
-      } catch (e) {
-        console.debug('Error listing cameras:', e);
-      }
-
       const qrCodeSuccessCallback = (decodedText: string) => {
         const now = Date.now();
-        // Prevent duplicate spam within 1.2s for identical code
+        // Prevent duplicate scan within 1.5 seconds for the same barcode
         if (
           decodedText === lastScannedCodeRef.current &&
-          now - lastScannedTimeRef.current < 1200
+          now - lastScannedTimeRef.current < 1500
         ) {
           return;
         }
@@ -68,11 +91,13 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         lastScannedTimeRef.current = now;
 
         playSuccessBeep();
-        onScanSuccess(decodedText);
+        if (onScanSuccessRef.current) {
+          onScanSuccessRef.current(decodedText);
+        }
       };
 
       const qrCodeErrorCallback = () => {
-        // Normal scanning frame misses, ignore
+        // Continuous frame analysis misses are normal, do nothing
       };
 
       await scannerRef.current.start(
@@ -104,22 +129,14 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         msg = 'Kameradan foydalanishga ruxsat berilmadi. Iltimos brauzer sozlamalaridan kamera ruxsatini yoqing.';
       } else if (err?.name === 'NotFoundError') {
         msg = 'Qurilmada kamera topilmadi.';
+      } else if (err?.name === 'NotReadableError' || err?.name === 'TrackStartError') {
+        msg = 'Kamera boshqa ilova tomonidan band qilingan yoki brauzer uni qulflab qoʻydi. Qayta ulash tugmasini bosing.';
       }
       setCameraError(msg);
       isRunningRef.current = false;
-      onToggleActive(false);
-    }
-  }, [onScanSuccess, onToggleActive]);
-
-  const stopScanner = useCallback(async () => {
-    if (scannerRef.current && isRunningRef.current) {
-      try {
-        await scannerRef.current.stop();
-        isRunningRef.current = false;
-        setTorchOn(false);
-      } catch (err) {
-        console.error('Scanner stop error:', err);
-      }
+    } finally {
+      isTransitioningRef.current = false;
+      setIsRetrying(false);
     }
   }, []);
 
@@ -136,7 +153,18 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
     }
   };
 
+  const handleRetry = async () => {
+    setCameraError(null);
+    await stopScanner();
+    // Small delay to allow mobile OS media stream to completely release
+    setTimeout(() => {
+      startScanner();
+    }, 200);
+  };
+
   useEffect(() => {
+    let isMounted = true;
+
     if (isActive) {
       startScanner();
     } else {
@@ -144,9 +172,11 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
     }
 
     return () => {
+      isMounted = false;
       stopScanner();
     };
-  }, [isActive, startScanner, stopScanner]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive]);
 
   return (
     <div className="scanner-card">
@@ -154,50 +184,38 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         <div id="scanner-reader" className="scanner-video-container" />
 
         {isActive && !cameraError && (
-          <div className="laser-guide">
-            <div className="laser-box">
-              <div className="laser-beam" />
+          <div className="scanner-reticle-overlay">
+            <div className="scanner-reticle-box">
+              <span className="reticle-corner top-left" />
+              <span className="reticle-corner top-right" />
+              <span className="reticle-corner bottom-left" />
+              <span className="reticle-corner bottom-right" />
+              <div className="scanner-reticle-line" />
             </div>
+            <div className="scanner-hint-tag">Shtrix-kodni rom ichiga qarating</div>
           </div>
         )}
 
         {cameraError && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 24,
-              textAlign: 'center',
-              background: 'rgba(10, 13, 20, 0.95)',
-              color: '#f87171'
-            }}
-          >
-            <AlertTriangle size={36} style={{ marginBottom: 10 }} />
-            <p style={{ fontSize: '0.9rem', lineHeight: 1.4, color: '#fca5a5' }}>
-              {cameraError}
-            </p>
+          <div className="scanner-message-overlay error">
+            <AlertCircle size={32} className="text-danger" />
+            <p className="scanner-error-text">{cameraError}</p>
+            <button
+              type="button"
+              className="scanner-retry-btn"
+              onClick={handleRetry}
+              disabled={isRetrying}
+            >
+              <RefreshCw size={14} className={isRetrying ? 'animate-spin' : ''} />
+              {isRetrying ? 'Ulanmoqda...' : 'Kamerani qayta ulash'}
+            </button>
           </div>
         )}
 
         {!isActive && !cameraError && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(18, 24, 38, 0.9)',
-              gap: 12
-            }}
-          >
-            <CameraOff size={36} style={{ color: '#64748b' }} />
-            <p style={{ fontSize: '0.88rem', color: '#94a3b8' }}>
+          <div className="scanner-message-overlay">
+            <CameraOff size={32} style={{ color: 'var(--text-secondary)' }} />
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               Kamera toʻxtatilgan
             </p>
           </div>
@@ -212,23 +230,23 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         >
           {isActive ? (
             <>
-              <CameraOff size={16} /> Kamerani toʻxtatish
+              <CameraOff size={15} /> Kamerani toʻxtatish
             </>
           ) : (
             <>
-              <Camera size={16} /> Kamerani yoqish
+              <Camera size={15} /> Kamerani yoqish
             </>
           )}
         </button>
 
-        {hasTorch && isActive && (
+        {hasTorch && isActive && !cameraError && (
           <button
             type="button"
             className={`control-btn ${torchOn ? 'active' : ''}`}
             onClick={toggleTorch}
-            title="Fonar / Chiroq"
+            title="Chiroq"
           >
-            <Flashlight size={16} /> {torchOn ? 'Chiroq: Yoniq' : 'Chiroq'}
+            <Flashlight size={15} /> {torchOn ? 'Chiroq: Yoniq' : 'Chiroq'}
           </button>
         )}
       </div>

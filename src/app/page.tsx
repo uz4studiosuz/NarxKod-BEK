@@ -67,8 +67,8 @@ export default function HomePage() {
     } catch (e) {}
   };
 
-  // Barcode scan handler
-  const handleScanSuccess = async (barcode: string) => {
+  // Barcode scan handler with useCallback to avoid re-renders
+  const handleScanSuccess = useCallback(async (barcode: string) => {
     setNotFoundBarcode(null);
     try {
       const res = await fetch(`/api/search?barcode=${encodeURIComponent(barcode)}`);
@@ -87,7 +87,7 @@ export default function HomePage() {
       setNotFoundBarcode(barcode);
       playErrorBeep();
     }
-  };
+  }, [saveToHistory]);
 
   // Search input handler
   const handleSearch = async (query: string) => {
@@ -109,15 +109,6 @@ export default function HomePage() {
       console.error('Search error:', err);
     } finally {
       setIsSearching(false);
-    }
-  };
-
-  const handleSelectProduct = (prod: Product) => {
-    setSelectedProduct(prod);
-    saveToHistory(prod);
-    // Switch to scan view or keep visible
-    if (activeTab === 'search') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -149,27 +140,26 @@ export default function HomePage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleScanSuccess]);
 
   return (
     <main className="app-container">
-      {/* Sticky Header */}
+      {/* Minimalist Clean Header */}
       <header className="app-header">
         <div className="brand-badge">
           <div className="brand-logo-icon">
-            <ShoppingBag size={20} />
+            <ShoppingBag size={18} />
           </div>
           <div>
             <h1 className="brand-title">NarxKod BEK</h1>
             <div className="brand-subtitle">
-              <span className="live-dot" />
               BEK MARKET • 11 172 tovar
             </div>
           </div>
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Clean Minimalist Tabs */}
       <nav className="tab-bar" aria-label="Boʻlimlar">
         <button
           type="button"
@@ -179,8 +169,8 @@ export default function HomePage() {
             setCameraActive(true);
           }}
         >
-          <Scan size={18} />
-          Skaner
+          <Scan size={17} />
+          <span>Skaner</span>
         </button>
 
         <button
@@ -191,8 +181,8 @@ export default function HomePage() {
             setCameraActive(false);
           }}
         >
-          <Search size={18} />
-          Qidiruv
+          <Search size={17} />
+          <span>Qidiruv</span>
         </button>
 
         <button
@@ -203,14 +193,14 @@ export default function HomePage() {
             setCameraActive(false);
           }}
         >
-          <History size={18} />
-          Tarix ({history.length})
+          <History size={17} />
+          <span>Tarix {history.length > 0 ? `(${history.length})` : ''}</span>
         </button>
       </nav>
 
       {/* SEARCH TAB CONTENT */}
       {activeTab === 'search' && (
-        <>
+        <div className="content-section">
           <SearchBar
             value={searchQuery}
             onChange={handleSearch}
@@ -219,184 +209,166 @@ export default function HomePage() {
             placeholder="Tovar nomi, kodi (masalan: 10006)..."
           />
 
-          <div className="content-section">
-            {selectedProduct && (
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase' }}>
-                  Tanlangan tovar:
-                </div>
-                <ProductCard product={selectedProduct} />
-              </div>
-            )}
+          {searchQuery.trim() && (
+            <div className="results-count-label">
+              Natijalar: {searchResults.length} ta tovar topildi
+            </div>
+          )}
 
-            {searchQuery.trim() && (
-              <div style={{ fontSize: '0.82rem', color: '#94a3b8', padding: '0 4px', marginBottom: 4 }}>
-                Natijalar: {searchResults.length} ta tovar topildi
-              </div>
-            )}
-
-            {searchResults.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {searchResults.map((item) => (
+          {searchResults.length > 0 ? (
+            <div className="search-list">
+              {searchResults.map((item) => {
+                const isOut = (item.remainder || 0) <= 0;
+                return (
                   <div
                     key={item.id}
-                    className="search-result-item"
-                    onClick={() => handleSelectProduct(item)}
+                    className="search-item-card"
+                    onClick={() => saveToHistory(item)}
                   >
-                    <div className="result-main">
-                      <div className="result-code-tag">KOD: {item.code || item.id}</div>
-                      <div className="result-name">{item.name}</div>
-                      {item.barcodes && (
-                        <div className="result-barcode-hint">
-                          Shtrix-kod: {item.barcodes.split(',')[0]}
-                        </div>
-                      )}
-                    </div>
+                    {/* 1. ASOSIY: NOMI */}
+                    <div className="item-title">{item.name}</div>
 
-                    <div className="result-price-side">
-                      <div className="result-price">{formatPrice(item.price)} soʻm</div>
-                      <div
-                        className="result-stock-sub"
-                        style={{ color: item.remainder <= 0 ? '#f43f5e' : '#10b981' }}
-                      >
-                        {item.remainder <= 0 ? 'Qoldiq: 0' : `${formatQuantity(item.remainder)} dona`}
+                    {/* 2. ASOSIY: NARXI VA QOLDIQ */}
+                    <div className="item-main-row">
+                      <div className="item-price">
+                        {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
+                      </div>
+                      <div className={`item-stock-tag ${isOut ? 'out' : 'in'}`}>
+                        {isOut ? 'Qoldiq: 0' : `Qoldiq: ${formatQuantity(item.remainder)} dona`}
                       </div>
                     </div>
+
+                    {/* 3. IKKILAMCHI: KOD VA SHTRIX-KOD */}
+                    <div className="item-meta-row">
+                      <span className="item-meta-pill">Kod: {item.code || item.id}</span>
+                      {item.barcodes && (
+                        <span className="item-meta-pill">
+                          Shtrix: {item.barcodes.split(',')[0]}
+                        </span>
+                      )}
+                      {item.articul && (
+                        <span className="item-meta-pill">Art: {item.articul}</span>
+                      )}
+                    </div>
                   </div>
-                ))}
+                );
+              })}
+            </div>
+          ) : searchQuery.trim() && !isSearching ? (
+            <div className="empty-state">
+              <Package className="empty-icon" size={36} />
+              <div className="empty-title">Tovar topilmadi</div>
+              <div className="empty-text">
+                "{searchQuery}" boʻyicha tovar topilmadi. Qidiruv soʻzini yoki kodini tekshiring.
               </div>
-            ) : searchQuery.trim() && !isSearching ? (
-              <div className="empty-state">
-                <Package className="empty-icon" />
-                <div className="empty-title">Tovar topilmadi</div>
-                <div className="empty-text">
-                  "{searchQuery}" soʻrovi boʻyicha hech qanday tovar topilmadi. Kod yoki nomni qayta tekshiring.
-                </div>
+            </div>
+          ) : !searchQuery.trim() ? (
+            <div className="empty-state">
+              <Search className="empty-icon" size={36} />
+              <div className="empty-title">Tovar qidirish</div>
+              <div className="empty-text">
+                Tovar nomi yoki ichki kodini yozing (masalan: <b>non</b>, <b>orbit</b>, <b>10006</b>).
               </div>
-            ) : !searchQuery.trim() ? (
-              <div className="empty-state">
-                <Search className="empty-icon" />
-                <div className="empty-title">Tovar qidirish</div>
-                <div className="empty-text">
-                  Yuqoridagi maydonga tovar nomi (masalan: <b>orbit</b>, <b>snikers</b>) yoki ichki kodini yozing.
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </>
+            </div>
+          ) : null}
+        </div>
       )}
 
       {/* SCANNER TAB CONTENT */}
       {activeTab === 'scan' && (
-        <>
+        <div className="content-section">
           <BarcodeScanner
             isActive={cameraActive}
             onToggleActive={setCameraActive}
             onScanSuccess={handleScanSuccess}
           />
 
-          <div className="content-section">
-            {notFoundBarcode && (
-              <div
-                style={{
-                  background: 'rgba(244, 63, 94, 0.12)',
-                  border: '1.5px solid rgba(244, 63, 94, 0.35)',
-                  borderRadius: 14,
-                  padding: '14px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  color: '#fda4af'
-                }}
-              >
-                <AlertCircle size={22} style={{ flexShrink: 0, color: '#f43f5e' }} />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#fff' }}>
-                    Tovar topilmadi
-                  </div>
-                  <div style={{ fontSize: '0.8rem', marginTop: 2 }}>
-                    Shtrix-kod: <code style={{ background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: 4 }}>{notFoundBarcode}</code> bazada mavjud emas.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedProduct ? (
+          {notFoundBarcode && (
+            <div className="not-found-alert">
+              <AlertCircle size={20} className="alert-icon" />
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, padding: '0 4px' }}>
-                  <span style={{ fontSize: '0.78rem', color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Skanerlangan tovar natijasi:
-                  </span>
-                </div>
-                <ProductCard product={selectedProduct} />
-              </div>
-            ) : (
-              <div className="empty-state">
-                <Scan className="empty-icon" />
-                <div className="empty-title">Kamera orqali tovar shtrix-kodini nishonga oling</div>
-                <div className="empty-text">
-                  Shtrix-kod avtomatik tanilib, tovar narxi, kodi va doʻkondagi qoldigʻi darhol ekranda chiqadi.
+                <div className="alert-title">Tovar topilmadi</div>
+                <div className="alert-desc">
+                  Shtrix-kod: <code>{notFoundBarcode}</code> bazada mavjud emas.
                 </div>
               </div>
-            )}
-          </div>
-        </>
+            </div>
+          )}
+
+          {selectedProduct ? (
+            <div className="scanned-result-wrap">
+              <div className="scanned-label">Skanerlangan tovar:</div>
+              <ProductCard product={selectedProduct} />
+            </div>
+          ) : (
+            <div className="empty-state">
+              <Scan className="empty-icon" size={36} />
+              <div className="empty-title">Shtrix-kodni kameraga tuting</div>
+              <div className="empty-text">
+                Kamera tovar shtrix-kodini avtomatik taniydi va uning nomi, narxi hamda qoldigʻi chiqadi.
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* HISTORY TAB CONTENT */}
       {activeTab === 'history' && (
-        <div className="content-section history-section">
-          <div className="section-header">
-            <span className="section-title">Koʻrilgan tovarlar tarixi</span>
+        <div className="content-section">
+          <div className="history-header-bar">
+            <span className="history-title">Koʻrilgan tovarlar tarixi</span>
             {history.length > 0 && (
               <button
                 type="button"
-                className="clear-history-btn"
+                className="clear-btn"
                 onClick={clearHistory}
               >
-                <Trash2 size={13} style={{ display: 'inline', marginRight: 4, verticalAlign: -1 }} />
+                <Trash2 size={13} />
                 Tozalash
               </button>
             )}
           </div>
 
           {history.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {history.map((item) => (
-                <div
-                  key={item.id}
-                  className="search-result-item"
-                  onClick={() => {
-                    setSelectedProduct(item);
-                    setActiveTab('scan');
-                  }}
-                >
-                  <div className="result-main">
-                    <div className="result-code-tag">KOD: {item.code || item.id}</div>
-                    <div className="result-name">{item.name}</div>
-                    <div className="result-barcode-hint">
-                      {item.barcodes ? item.barcodes.split(',')[0] : 'Shtrix-kodsiz'}
+            <div className="search-list">
+              {history.map((item) => {
+                const isOut = (item.remainder || 0) <= 0;
+                return (
+                  <div
+                    key={item.id}
+                    className="search-item-card"
+                    onClick={() => {
+                      setSelectedProduct(item);
+                      setActiveTab('scan');
+                    }}
+                  >
+                    <div className="item-title">{item.name}</div>
+                    <div className="item-main-row">
+                      <div className="item-price">
+                        {formatPrice(item.price)} <span className="item-price-unit">soʻm</span>
+                      </div>
+                      <div className={`item-stock-tag ${isOut ? 'out' : 'in'}`}>
+                        {isOut ? 'Qoldiq: 0' : `Qoldiq: ${formatQuantity(item.remainder)} dona`}
+                      </div>
+                    </div>
+                    <div className="item-meta-row">
+                      <span className="item-meta-pill">Kod: {item.code || item.id}</span>
+                      {item.barcodes && (
+                        <span className="item-meta-pill">
+                          Shtrix: {item.barcodes.split(',')[0]}
+                        </span>
+                      )}
                     </div>
                   </div>
-
-                  <div className="result-price-side">
-                    <div className="result-price">{formatPrice(item.price)} soʻm</div>
-                    <div
-                      className="result-stock-sub"
-                      style={{ color: item.remainder <= 0 ? '#f43f5e' : '#10b981' }}
-                    >
-                      {item.remainder <= 0 ? 'Qoldiq: 0' : `${formatQuantity(item.remainder)} dona`}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="empty-state">
-              <History className="empty-icon" />
+              <History className="empty-icon" size={36} />
               <div className="empty-title">Tarix boʻsh</div>
               <div className="empty-text">
-                Skaner yoki qidiruv orqali tekshirilgan tovarlar bu yerda avtomatik saqlanib boradi.
+                Skaner yoki qidiruv orqali tekshirilgan tovarlar roʻyxati bu yerda saqlanadi.
               </div>
             </div>
           )}

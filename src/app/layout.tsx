@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Mobil barcode skaner va tovar narxi hamda qoldigʻini tezkor aniqlash tizimi.',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'NarxKod BEK',
   },
 };
@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#0a0d14',
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({
