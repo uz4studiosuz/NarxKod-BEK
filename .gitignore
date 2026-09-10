@@ -1,0 +1,6 @@
+node_modules
+.next
+data.sql
+products.db-journal
+.system_generated
+.env*.local
